@@ -102,41 +102,38 @@ for epoch in range(epochs):
     train_loss=0
     t=time.time()
     for step,batch in enumerate(train_dataloader):
-        #series=batch.to(device)#.float()
+
         features,targets,mask=batch
         features=features.cuda()
         targets=targets.cuda()
         mask=mask.cuda()
-        #exit()
+
 
         optimizer.zero_grad()
         output=model(features)
-        #exit()
-        #exit()
 
-        loss=criterion(output,targets)#*loss_weight_vector
+
+        loss=criterion(output,targets)
         loss=torch.masked_select(loss,mask)
         loss=loss.mean()
         loss.backward()
-        # with amp.scale_loss(loss, optimizer) as scaled_loss:
-        #     scaled_loss.backward()
+
         optimizer.step()
 
         train_loss+=loss.item()
-        #scheduler.step()
+
         if step % 100 == 0:
             
             print (f"Epoch [{epoch+1}/{150}] Step [{step+1}/{steps_per_epoch}] Loss: {train_loss/(step+1):.3f} Time: {time.time()-t:.1f}",
                    end='\r',flush=True)
         if epoch > cos_epoch:
             scheduler.step()
-        #break
+
     print('')
     train_loss/=(step+1)
     
     writer.add_scalar('Loss/train', train_loss, epoch)
 
-    #exit()
     model.eval()
     val_metric=[]
     val_loss=0
